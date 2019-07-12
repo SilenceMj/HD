@@ -1,0 +1,165 @@
+1.inventory_goods表中 新增字段 mean
+2.新增表 store_new_scheduled
+3.out_goods 表中 新增字段 good_id   now_count
+4.2019.07.04   ---新增两张表  采购申请表/采购申请详情表   purchase_apply / purchase_apply_details
+5.新增表  purchase_year    /   purchase_year_details
+6.新增表  purchase_buy    /    purchase_buy_details
+
+
+
+
+
+1.采购申请 与 采购审核 其实是同一个页面 ， 采购申请相当于添加的功能，审核就是审核的功能，建议合并，添加一个按钮即可
+
+
+采购申请表：  purchase_apply
+	id:		  			id				bigint
+	采购类型：			purchase_type   0/1 tinyint   生产采购/非生产采购
+	申请单号：			code			varchar
+	采购主题：			theme			 varchar
+	所属组织：			org			 	varchar   		存id
+	申请进度：			apply_state		 varchar		新建/待审核/审核通过/审核未通过
+	采购类别：			purchase_sort	 bigint			数据字典
+	申请人：  			proposer		 varchar		存id
+	申请日期：			apply_date	 	dateTime		
+	采购金额合计：		total	 		decimal(10,2) 
+	经办人	： 			passUser		varchar			存id
+	附件：				attachment		varchar			url
+	审核人：			check_user		varchar			存id
+	审核日期：			check_date		dateTime
+	审核意见：			check_opinion	varchar
+	
+	经办日期（在页面中，没有任何一个操作显示出需要有经办日期，建议去掉，或者重新设计一个页面）
+	
+		
+采购申请详情表：purchase_apply_details
+	id：	  			id				bigint
+	采购申请表id:		apply_id		bigint
+	物资编号：			code			varchar
+	物资名称：			name			varchar
+	分类：				category_name	varchar			(是存id/还是name)
+	品牌：				brand			varchar
+	计量单位：			unit			varchar
+	库存数量：			store_count		int			（这个地方，是每次查最新的，还是在第一次添加的时候保存当时的，以后都只查当时的。）
+	申请采购数量		purchase_count	int
+	单价（歧义，这里的单价指的是库存中物资的单价，还是询价比价中的单价？）
+		1.如果是物资中的单价，因为只有入库之后，物资才会有单价，如果该物资之前根本就没有，也就没有单价，那么此时单价从哪里来?
+		2.如果是询价比价中的单价，那么此时应该选择哪一个询价比价中的单价
+	总价（歧义，单价不明确）
+	
+询价比价表：purchase_enquiry
+	id:					id				bigint
+	询价单号：			code			varchar
+	询价日期:			enquiry_date	dateTime
+	供应商:				vendor_id		bigInt	 取自供应商表
+	询价类型:			type			0/1 tinyint		生产物咨询价/非生产物咨询价
+	询价主题:			theme			varchar
+	所属组织：			org				varchar		存id   (不理解这个询价比价单需要所属组织是干什么用的。就算有，是否也是当前登陆用户的所属组织？？？？)
+	询价人：			enquiry_user	varchar		存id  (当前登陆用户)
+	附件：				attachment		varchar		url
+	
+询价比价详情表：purchase_enquiry_details
+	id：				id				bigint
+	询价比价表id：		enquiry_id		bigInt
+	物资编号：			code			varchar
+	物资名称：			name			varchar
+	分类：				category_name	varchar				(是存id/还是name)
+	品牌：				brand			varchar
+	型号：				model			varchar
+	计量单位：			unit			varchar
+	数量				enquiry_count	int					(歧义：这里的数量指库存数量还是询价的数量？？？？？)
+	单价：				enquiry_price	decimal(10,2)    （我的理解这里的单价是询价的单价？？？？？？？？）
+	总价：				total			decimal(10,2)		（询价的总价？手填？）
+	系统最低价			min_price		decimal(10,2)		这个最低价从哪里来？？？（仓库系统的物资？还是所有的询价比价单中？？？？）
+	
+申购单表：	purchase_apply_buy
+	id：				id 				bigInt
+	申购类型：			buy_type		0/1 tinyint   生产申购/非生产申购
+	申购单号：			code			varchar
+	申购主题：			theme  			varchar		(新增页面中无，列表页中有。是否需要？？？？)
+	采购日期：			buy_date		dateTime
+	供应商：			vendor_id		bigInt
+	采购类别：			buy_sort		bigInt		(数据字典)
+	制单人：			preoared_user	varchar		存id
+	制单日期：			preoared_date	dateTime
+	所属组织：			org				varchar		(这里的所属组织不应该是由制单人属于哪个组织就是哪个组织吗？)
+	审核人:				check_user		varchar		存id
+	审核日期：			check_date		dateTime	(审核人与审核日期不建议出现在新增申购单的页面)
+	申购单状态：		buy_state		varchar		新建/待审核/审核通过/审核未通过
+	附件：				attachment		varchar		url
+	收货人姓名：		cnee_user		varchar		
+	收货人电话：		cnee_phone		varchar
+	收货人地址：		cnee_address	varchar
+	交货开始日期：		start_date		dateTime
+	交货截至日期：		end_date		dateTime
+	付款状态：			pay_state		tinyint		0/1/2    or （数据字典）
+	结算方式：			clearing_form	bigInt		(数据字典)
+	付款方式：			pay_method		bigInt		(数据字典)
+	运费和保险：		freight			decimal(10,2)
+	备注：				remark			text
+	
+申购单详情表：purchase_apply_buyDetails
+	id:					id				bigInt
+	申购单表id:			buy_id			bigInt
+	物资编号：			code			varchar
+	物资名称：			name			varchar
+	分类：				category_name	varchar			(是存id/还是name)
+	品牌：				brand			varchar
+	型号：				model			varchar
+	计量单位：			unit			varchar
+	库存数量：			storeCount		int			（这个地方，是每次查最新的，还是在第一次添加的时候保存当时的，以后都只查当时的。）
+	申请采购数量：		buy_count		int
+	订单数量：			appyly_count	int  		（这个数量从哪里来的????有什么意义？）
+	实际单价：			buy_price		decimal(10,2)	
+	实际总计：			buy_total		decimal(10,2)
+	
+	
+	
+	
+	
+	
+申购单表（新）：purchase_buy
+	id：				id 				bigInt
+	申购单编号			code			varchar
+	所属组织：			org				varchar
+	制单人：			preoared_user	varchar		存id
+	制单日期：			preoared_date	dateTime
+	申购单状态：		buy_state		varchar		新建/待审核/审核通过/审核未通过
+	采购类别：			buy_sort		bigInt		(数据字典)
+	申请单id			apply_id		bigInt
+	附件：				attachment		varchar		url
+	供应商：			vendor_id		bigInt
+	收货人姓名：		cnee_user		varchar		
+	收货人电话：		cnee_phone		varchar
+	收货人地址：		cnee_address	varchar
+	交货开始日期：		start_date		dateTime
+	交货截至日期：		end_date		dateTime
+	付款状态：			pay_state		tinyint		0/1/2    or （数据字典）
+	结算方式：			clearing_form	bigInt		(数据字典)
+	付款方式：			pay_method		bigInt		(数据字典)
+	运费和保险：		freight			decimal(10,2)
+	备注：				remark			text
+	
+申购单详情表：purchase_buy_details
+	id:					id				bigInt
+	申购单表id:			buy_id			bigInt
+	物资编号：			no				varchar
+	物资目录id：		good_id			bigInt
+	库存数量：			storeCount		int			（这个地方，是每次查最新的，还是在第一次添加的时候保存当时的，以后都只查当时的。）
+	申请采购数量：		apply_count		int
+	订单数量：			buy_count		int  		（这个数量从哪里来的????有什么意义？）
+	实际单价：			buy_price		decimal(10,2)	
+	年度参考价			year_price		decimal(10,2)
+	比价结果			compare_result	varchar
+	实际总计：			buy_total		decimal(10,2)
+	
+	
+	
+	
+	编号/申请单id /供应商id/   详情：年度参考价
+	
+	
+	
+	
+	
+	
