@@ -10,14 +10,10 @@ git rm purchase.txt 删除文件 然后git commit
 git remote add origin git@github.com:SilenceMj/HD.git   用于关联本地仓库和远程仓库   SilenceMj 为gitHub账户名称  HD.git为远程仓库名称
 git push -u origin master  将本地仓库的内容推送至远程仓库
 git clone 将远程库的内容克隆到本地
-
-
-
-
-
-
-
-
-
-
+git branch 查看分支
+git branch <name> 创建分支
+git checkout <name> 切换分支
+git checkout -b <name> 创建并切换分支
+git merge <name> 合并某分支到当前分支
+git branch -d <name> 删除分支
 
